@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+  <!-- SymbolSet webfont icons stylesheets. -->
+  <link rel="stylesheet" href="css/ss-standard.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+
+  <!-- Library dependencies -->
+  <script src="js/lib/zepto.js"></script>
+  <script src="js/lib/lodash.js"></script>
+  <script src="js/lib/backbone.js"></script>
+  <script src="js/lib/iscroll.js"></script>
+
+  <!-- Custom JS -->
+  <script src="js/app.js"></script>
+
+  <!-- Templates -->
+  <script type="text/html" id="login-page-template">
+
+      <!-- Wrapper to animate in all elements. -->
+      <div id="login-content">
+
+        <img src="res/img/logo.png" style="
+    width: 66%;
+    margin: 0 auto;
+    display: block;
+    margin-bottom: 2rem;
+    position: absolute;
+    left: 50%;
+    margin-left: -35%;
+">
+
+        <ul class="form">
+          <li>
+            <!-- Using div instead of label to prevent Android showing it on
+                 text-input focus. -->
+            <div class="ss-icon">mail</div>
+            <input id="email-input" type="email" placeholder="Email" />
+            <div class="ss-icon clear-input clear-email">delete</div>
+          </li>
+          <li>
+            <div class="ss-icon">lock</div>
+            <input id="password-input" type="password" placeholder="Password" />
+            <div class="ss-icon clear-input clear-password">delete</div>
+          </li>
+        </ul>
+        <button id="login-button" class="ss-action">Login</button>
+
+        <aside id="login-message">
+          <p>Don't have an account? <span id="fill-login">Use ours</span>.</p>
+        </aside>
+
+      </div>
+
+  </script>
+
+  <script type="text/html" id="viewport-tpl">
+
+
+  </script>
+
+  <script type="text/template" id="account-list-item-tpl">
+      <span class="<%= Rating %>"><%- Name %><br/><span class="account-no"><%= AccountNumber %></span></span>
+  </script>
+
+  <script type="text/template" id="account-item-tpl">
+    <div>
+      <section class="account-head">
+        <div class="overlay">
+          <h1><%- Name %></h1>
+          <span class="ss-tag"><%= AccountNumber %></span>
+          <% if (Industry) { %>
+            <span class="ss-briefcase"><%- Industry %></span>
+          <% }%>
+        </div>
+      </section>
+      <section class="contact-details">
+        <div>
+          <% if (BillingStreet) print(BillingStreet + ',<br/>') %>
+          <% if (BillingCity) print(BillingCity + ',<br/>') %>
+          <% if (BillingState) print(BillingState + ',<br/>') %>
+          <% if (BillingCountry) print(BillingCountry) %>
+        </div>
+      </section>
+      <section class="links">
+        <div>
+          <% if (Phone) print('<a href="tel:' + Phone + '" class="ss-phone">' + Phone + '</a>') %>
+
+          <br/>
+          <% if (Website) print('<a href="' + Website + '" class="ss-globe">' + Website + '</a>') %>
+        </div>
+      </section>
+      <section class="raw">
+
+      </section>
+      </div>
+  </script>
+</body>
+</html>

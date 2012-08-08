@@ -1,0 +1,566 @@
+@import "compass/css3";
+
+$fh-red: #FF2752;
+
+@mixin truncate-text {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+@mixin inset-text-shadow {
+  text-shadow: 0 -.1rem 0 rgba(0, 0, 0, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+  outline: none;
+
+  // Do our best to prevent user selecting any text/items in the app.
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &:focus,
+  &:active {
+    outline: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+}
+
+input {
+  @include truncate-text;
+}
+
+input,
+input:focus,
+input:active {
+  border: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+// We want to make the SymbolSet icons slightly bigger globally.
+.ss-icon, [class^="ss-"]::before, [class*=" ss-"]::before {
+  font-size: 1.2rem;
+}
+
+.clear-input {
+  display: none;
+}
+
+html,
+body,
+#app-viewport {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+
+  font-family: Helvetica, Arial, sans-serif;
+  color: #222;
+
+  // Positioning like this solves the scrolling issue on mobile browsers.
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+
+
+#main-viewport {
+  width: 100%;
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+
+  &.with-titlebar {
+    top: 3rem;
+  }
+}
+
+.page {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+#login-page {
+  background-color: transparent;
+}
+
+.form {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-box-align: stretch;
+  margin: 0 auto;
+  border: 1px solid #BEBEBE;
+  border-radius: .25rem;
+  background-color: white;
+  box-shadow: 0 3px 0 -1px white, 0 2px 0 1px #CCC, 0 6px 0 -1px white, 0 6px 0 0 #AAA, 0 0.5rem 0.5rem 0 rgba(0, 0, 0, 0.2);
+  width: 100%;
+  margin: 0;
+
+  li {
+    display: -webkit-box;
+
+    padding: 0;
+
+    &:first-child {
+      border-bottom: 1px dashed #EEE;
+    }
+  }
+
+  .ss-icon {
+    color: #ccc;
+    padding: .5rem .5rem .5rem 1rem;
+    line-height: 1.2rem;
+  }
+
+  .clear-input {
+    padding: .5rem 1rem .5rem .5rem;
+  }
+
+  input {
+    display: block;
+    margin: 0;
+    border: none;
+    font-size: 1rem;
+    line-height: 1.2rem; // Prevents 'jump' by having same line-height as ss-icons.
+    padding: .5rem 1rem .5rem .5rem;
+    -webkit-box-flex: 1;
+  }
+
+}
+
+#login-page {
+
+  .form {
+    width: 100%;
+    padding: 0;
+  }
+
+  button {
+    margin-top: 1.5em;
+    padding: .5em 0 .4em 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-shadow: 0 -.1em rgba(0, 0, 0, 0.33);
+    color: white;
+    background-image: -webkit-linear-gradient(bottom, $fh-red 7%, lighten($fh-red, 12) 100%);
+    background-color: #FD3D54;
+    border: 1px solid #CC2236;
+    border-radius: .3em;
+    box-shadow: 0 0.3rem 0 0 #D51E1E, 0 0.4rem 0.3rem 0 rgba(0, 0, 0, 0.27);
+    width: 100%;
+    display: block;
+
+    &:active {
+      box-shadow: none;
+      -webkit-transform: translateY(.3rem);
+    }
+
+    &::before {
+      margin-right: .5rem;
+      vertical-align: middle;
+    }
+  }
+}
+
+#login-content {
+  height: 100%;
+  opacity: 0;
+  -webkit-transform: translateY(15em);
+  -webkit-transition: all 0.4s ease;
+
+  display: -webkit-box;
+  -webkit-box-align: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-pack: center;
+  padding: 1em;
+}
+
+#login-message {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
+  font: .9rem/.9rem sans-serif;
+  background-color: rgba(0,0,0,0.33);
+  color: #fff;
+  border-top: .1rem solid rgba(0,0,0,.2);
+  text-align: center;
+
+  p {
+    padding: 0;
+    margin: 0;
+  }
+}
+
+#fill-login {
+  font-weight: bold;
+}
+
+// APP MENU
+// -----------------------------------------------------------------------------
+#app-menu {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 80%;
+  height: 100%;
+  background-color: #444;
+  box-shadow: inset -1rem 0 2rem -1rem rgba(0, 0, 0, 0.67);
+}
+
+#app-menu-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    height: 3rem;
+    line-height: 3rem;
+    border-top: .1rem solid rgba(255, 255, 255, 0.10);
+    border-bottom: .1rem solid rgba(0, 0, 0, 0.25);
+    font-size: 1.33rem;
+    text-shadow: 0 -.1rem 0 rgba(0, 0, 0, 0.5);
+
+    a {
+      display: block;
+      text-decoration: none;
+      color: rgba(255, 255, 255, 0.66);
+      height: 3rem;
+      line-height: 3rem; // Doesn't seem to inherit these properly.
+
+      &::before {
+        font-size: 1.5rem;
+        line-height: 3rem;
+        vertical-align: middle;
+        padding: 0 1rem;
+      }
+    }
+
+    .selected {
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.25);
+    }
+  }
+}
+
+// TITLEBAR
+// -----------------------------------------------------------------------------
+@-webkit-keyframes spinner {
+  0% {
+    -webkit-transform: rotateZ(0);
+  }
+  100% {
+    -webkit-transform: rotateZ(359deg);
+  }
+}
+
+#titlebar {
+  position: absolute;
+  width: 100%;
+  height: 3rem;
+  overflow: hidden;
+  z-index: 200;
+  background-image: -webkit-linear-gradient(bottom, $fh-red 7%, lighten($fh-red, 12) 100%);
+  color: #fff;
+  border-top: .1rem solid rgba(255, 255, 255, 0.40);
+  border-bottom: .1rem solid darken($fh-red, 20);
+  box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.5);
+  -webkit-transition: all .2s ease;
+
+  @include inset-text-shadow;
+
+  button {
+    border: none;
+    background-color: transparent;
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 3rem;
+    border-right: .1rem solid rgba(0, 0, 0, 0.25);
+    box-shadow: .1rem 0 0 0 rgba(255, 255, 255, 0.15);
+    padding: .15rem 0 0 0; // Arbitrary; mimic vertical-align: middle.
+    margin: 0;
+    width: 3rem;
+    position: absolute;
+
+    // Violates DRY but buttons don't seem to inherit this.
+    @include inset-text-shadow;
+
+    &:active {
+      background-color: rgba(0, 0, 0, 0.1);
+      box-shadow: inset 0 0 1rem rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  #context-button {
+    border-left: .1rem solid rgba(255, 255, 255, 0.15);
+    box-shadow: -.1rem 0 0 0 rgba(0, 0, 0, 0.25);
+    top: 0;
+    right: 0;
+    padding: 0;
+    -webkit-transition: -webkit-transform .2s linear;
+    -webkit-transform: translateX(3.1rem);
+
+    &.active {
+      -webkit-transform: translateX(0);
+
+      span {
+        -webkit-animation: spinner 1s infinite linear;
+      }
+    }
+
+    &:active {
+      background-color: transparent;
+      box-shadow: -.1rem 0 0 0 rgba(0, 0, 0, 0.25);
+    }
+
+    span {
+      display: block;
+      line-height: 3.5rem; // Arbitrary, seems to solve offset issue.
+      height: 3rem;
+    }
+  }
+
+  h1 {
+    // By offsetting button padding with margin, we allow proper centering.
+    margin: 0 0 0 -4rem;
+    padding: 0 0 0 4rem;
+    text-align: center;
+    font-size: 1.5rem;
+    line-height: 3rem;
+  }
+}
+
+.hidden {
+  -webkit-transform: translateY(-3rem);
+  box-shadow: none;
+}
+
+// VIEWPORT WRAPPER
+// -----------------------------------------------------------------------------
+#viewport-wrapper {
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #e5e5e5;
+  background-image: url(../res/img/mapbg.png);
+  background-size: cover;
+  background-position: 50% 0;
+
+  // The animation setup for menu slide-in/out...
+  -webkit-transition: -webkit-transform .33s ease;
+}
+
+// ACCOUNTS PAGE
+// -----------------------------------------------------------------------------
+#accounts-page,
+#cases-page {
+  background-color: #fff;
+}
+
+#accounts-list,
+#cases-list {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+
+  li {
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1rem;
+    border-top: 1px solid #eee;
+
+    &:last-child {
+      border-bottom: 1px solid #eee;
+    }
+  }
+}
+
+#accounts-list li > span {
+    padding: 1rem 1rem 1rem .5rem;
+    display: block;
+    border-left: .5rem solid transparent;
+
+    &.Hot {
+        border-left-color: $fh-red;
+    }
+
+    &.Warm {
+        border-left-color: #ffa81f;
+    }
+
+    &.Cold {
+        border-left-color: #4e93ff;
+    }
+}
+
+.account-no {
+    color: #666;
+    display: block;
+    margin-top: .5rem;
+    font-size: .8rem;
+}
+
+#cases-list {
+  li {
+    padding: 0;
+    line-height: 3rem;
+
+    span {
+      padding: 0 .5rem 0 .5rem;
+      border-left: .5rem solid transparent;
+      display: block;
+
+      @include truncate-text;
+    }
+
+    .High-priority {
+      border-left-color: $fh-red;
+    }
+    .Medium-priority {
+      border-left-color: #ffa81f;
+    }
+    .Low-priority {
+      border-left-color: #4e93ff;
+    }
+
+    .true {
+        text-decoration: line-through;
+        opacity: .67;
+    }
+  }
+}
+
+#single-account-page {
+    section {
+    }
+
+  table {
+    padding: 1rem;
+    border-top: .1rem dashed #ccc;
+    margin-top: 2rem;
+    background-color: #eee;
+    color: #666;
+    width: 100%;
+  }
+
+  tr td:first-of-type {
+    font-weight: bold;
+  }
+
+  .account-head {
+    background-size: cover;
+    position: relative;
+    width: 100%;
+    min-height: 15rem;
+    background-color: #eee;
+
+    .overlay {
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.33);
+      color: #fff;
+
+      h1 {
+        text-shadow: 0 .1rem .3rem rgba(0, 0, 0, 0.33);
+      }
+
+      span {
+        display: inline-block;
+        padding-top: .5rem;
+
+        &::before {
+          margin-right: .5rem;
+          vertical-align: middle;
+        }
+      }
+
+      span:first-of-type {
+        margin-right: 1rem;
+      }
+    }
+  }
+
+  .contact-details {
+    display: -webkit-box;
+
+    & > div {
+      -webkit-box-flex: 1;
+      width: 50%;
+      font-size: 1.2rem;
+      line-height: 1.8rem;
+      padding: 1rem;
+
+      span {
+        font-size: 1rem;
+
+      }
+    }
+  }
+
+  .links a {
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1rem;
+    padding: .5rem 1rem .4rem 1rem;
+    margin-left: 1rem;
+    background-color: #ccc;
+    border-radius: 1.15rem;
+    line-height: 1.33rem;
+    color: white;
+    font-weight: bold;
+    font-size: 1.33rem;
+
+    &::before {
+      vertical-align: middle;
+      padding-right: .5rem;
+    }
+  }
+
+    h1 {
+        font-size: 1.67rem;
+        margin: 0;
+    }
+
+    h2 {
+        font-size: 1rem;
+        font-weight: normal;
+        color: #666;
+    }
+
+    .heat {
+        display: inline-block;
+        font-size: 1rem;
+        font-weight: bold;
+        line-height: 1rem;
+        padding: .3rem .8rem;
+        border-radius: .8rem;
+        color: #fff;
+
+        &.Hot {
+            background-color: $fh-red;
+        }
+
+        &.Warm {
+            background-color: #ffa81f;
+        }
+
+        &.Cold {
+            background-color: #4e93ff;
+        }
+    }
+}
