@@ -214,7 +214,12 @@ app = (function() {
     // Works around the above, with the added bonus of circumventing the short
     // delay between tap and onclick events on mobile.
     followLink: function(event) {
-      window.location = $(event.srcElement).attr('href');
+      var href = $(event.srcElement).attr('href');
+      if (/^http/.test(href)) {
+        window.location = href;
+      } else {
+        window.app.navigate(href, {trigger: true});
+      }
       this.trigger('pagechange');
       // this.toggleMenu();
     },
