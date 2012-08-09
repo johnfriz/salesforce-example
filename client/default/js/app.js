@@ -1,20 +1,19 @@
-// TODO: Remove when going into production! Only for use in FH AppStudio.
-if (!(/mobile/i.test(navigator.userAgent)) && !('ontouchstart' in window)) {
-  console.log('Desktop, non-touch browser detected... setting up events.');
-  $('body')
-    .on('click', function(event) {
-      $(event.srcElement).trigger('tap', event);
-    })
-    .on('mousedown', function(event) {
-      $(event.srcElement).trigger('touchstart', event);
-    })
-    .on('mousemove', function(event) {
-      $(event.srcElement).trigger('touchmove', event);
-    })
-    .on('mouseup', function(event) {
-      $(event.srcElement).trigger('touchend', event);
-    });
-}
+// This is a function which allow us to demonstrate the app, which listens
+// exclusively to tap events (in order to avoid the slight delays in click
+// events mobile browser engines introduce), by firing those tap events when we
+// detect a genuine click, while also allowing us to scroll etc...
+$('body').on('mousedown', function(event) {
+  if (!(/mobile/i.test(navigator.userAgent)) && !('ontouchstart' in window)) {
+
+    $('body')
+      .one('mousemove', function() {
+        $('body').off('mouseup');
+      })
+      .one('mouseup', function() {
+          $(event.srcElement).trigger('tap');
+      });
+  }
+});
 
 // Allows us to check whether our SalesForce API session should still be valid
 // or timed out, with a 5 minute 'insurance' against making bad calls.
@@ -214,6 +213,7 @@ app = (function() {
     // Just a simple function to cancel any onclick events, which were following
     // through (delayed) from a tap on the menu item.
     stopLink: function(event) {
+
       return false;
     },
 
