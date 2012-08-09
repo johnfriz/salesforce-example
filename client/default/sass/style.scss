@@ -29,6 +29,354 @@ $fh-red: #FF2752;
   }
 }
 
+.raw {
+  table {
+    padding: 1rem;
+    border-top: .1rem dashed #ccc;
+    background-color: #eee;
+    color: #666;
+    width: 100%;
+  }
+
+  td {
+    vertical-align: top;
+  }
+
+  tr td:first-of-type {
+    font-weight: bold;
+  }
+}
+
+.page {
+  & > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      border-top: .1rem solid #eee;
+      background-color: #fff;
+
+      &:last-of-type {
+        border-bottom: .1rem solid #eee;
+      }
+
+      &.touched {
+        background-color: #eee;
+      }
+
+      span {
+        display: block;
+        position: relative;
+        padding: 1rem 1rem 1rem .5rem;
+        border-left: .5rem solid transparent;
+
+        h2 {
+          font-size: 1rem;
+          margin: 0;
+          font-weight: normal;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          width: 100%;
+        }
+
+        aside {
+          margin-top: .5rem;
+          font-size: .9rem;
+          color: #999;
+          font-style: italic;
+        }
+      }
+    }
+  }
+}
+
+.cost-bar {
+  position: absolute;
+  width: 100%;
+  background-color: rgb(161, 255, 188);
+  height: .3rem;
+  left: -.5rem;
+  bottom: 0;
+
+  &.overbudget {
+    background-color: lighten($fh-red, 25);
+
+    .cost-actual {
+      background-color: $fh-red;
+    }
+  }
+}
+
+.cost-actual {
+  height: .3rem;
+  background-color: rgb(74, 228, 111);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+#opportunities-page ul li span {
+  padding-bottom: 1.6rem;
+}
+
+.opp-probability {
+  position: absolute;
+  bottom: 0;
+  left: -.5rem;
+  height: .3rem;
+
+  &.high {
+    background-color: rgb(74, 228, 111);
+    & > div {
+      background-color: rgb(74, 228, 111);
+    }
+  }
+  &.medium {
+    background-color: rgb(255, 168, 31);
+    & > div {
+      background-color: rgb(255, 168, 31);
+    }
+  }
+  &.low {
+    background-color: $fh-red;
+    & > div {
+      background-color: $fh-red;
+    }
+  }
+
+  & > div {
+    position: absolute;
+    overflow: hidden;
+    right: 0;
+    bottom: 0;
+    color: #fff;
+    padding: .2rem;
+    border-radius: .3rem;
+    font-size: .75rem;
+    font-weight: bold;
+  }
+}
+
+#opportunity-detail-page {
+  .top {
+    background-image: url('../res/img/brillant.png');
+  }
+
+  .head {
+    position: relative;
+    width: 100%;
+    padding-top: 1rem;
+    padding-bottom: 1.67rem;
+
+    h3 {
+      margin: 0;
+      font-size: .9rem;
+      color: rgba(0, 0, 0, 0.33);
+      padding-left: 1rem;
+    }
+
+    .figure {
+      font-size: 3rem;
+      font-weight: bold;
+      opacity: .8;
+      margin-bottom: 1rem;
+      padding-left: 1rem;
+    }
+
+    #probability-bar {
+      width: 90%;
+      min-width: 30% !important;
+      height: .3rem;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+
+      &.high {
+        background-color: rgb(74, 228, 111);
+        & > div {
+          background-color: rgb(74, 228, 111);
+        }
+      }
+      &.medium {
+        background-color: rgb(255, 168, 31);
+        & > div {
+          background-color: rgb(255, 168, 31);
+        }
+      }
+      &.low {
+        background-color: $fh-red;
+        & > div {
+          background-color: $fh-red;
+        }
+      }
+
+      & > div {
+        position: absolute;
+        overflow: hidden;
+        right: 0;
+        bottom: 0;
+        color: #fff;
+        padding: .2rem;
+        border-radius: .3rem;
+        font-size: .75rem;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .description {
+    padding: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .info {
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.33);
+    color: #fff;
+
+    h1 {
+      text-shadow: 0 .1rem .3rem rgba(0, 0, 0, 0.33);
+      margin: 0;
+    }
+
+    span {
+      display: inline-block;
+      padding-top: .5rem;
+
+      &::before {
+        margin-right: .5rem;
+        vertical-align: middle;
+      }
+    }
+
+    span:first-of-type {
+      margin-right: 1rem;
+    }
+  }
+}
+
+#accounts-page li {
+  .Hot {
+    border-left-color: $fh-red;
+  }
+
+  .Warm {
+    border-left-color: #ffa81f;
+  }
+
+  .Cold {
+    border-left-color: #4e93ff;
+  }
+}
+
+#account-detail-page {
+  .account-head {
+    background-size: cover;
+    position: relative;
+    width: 100%;
+    min-height: 15rem;
+    background-color: #eee;
+
+    .overlay {
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.33);
+      color: #fff;
+
+      h1 {
+        text-shadow: 0 .1rem .3rem rgba(0, 0, 0, 0.33);
+      }
+
+      span {
+        display: inline-block;
+        padding-top: .5rem;
+
+        &::before {
+          margin-right: .5rem;
+          vertical-align: middle;
+        }
+      }
+
+      span:first-of-type {
+        margin-right: 1rem;
+      }
+    }
+  }
+
+  .contact-details {
+    display: -webkit-box;
+
+    & > div {
+      -webkit-box-flex: 1;
+      width: 50%;
+      font-size: 1.2rem;
+      line-height: 1.8rem;
+      padding: 1rem;
+
+      span {
+        font-size: 1rem;
+
+      }
+    }
+  }
+
+  .links a {
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1rem;
+    padding: .5rem 1rem .4rem 1rem;
+    margin-left: 1rem;
+    background-color: #ccc;
+    border-radius: 1.15rem;
+    line-height: 1.33rem;
+    color: white;
+    font-weight: bold;
+    font-size: 1.33rem;
+
+    &::before {
+      vertical-align: middle;
+      padding-right: .5rem;
+    }
+  }
+
+  h1 {
+    font-size: 1.67rem;
+    margin: 0;
+  }
+
+  h2 {
+    font-size: 1rem;
+    font-weight: normal;
+    color: #666;
+  }
+
+  .heat {
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 1rem;
+    padding: .3rem .8rem;
+    border-radius: .8rem;
+    color: #fff;
+
+    &.Hot {
+      background-color: $fh-red;
+    }
+
+    &.Warm {
+      background-color: #ffa81f;
+    }
+
+    &.Cold {
+      background-color: #4e93ff;
+    }
+  }
+}
+
 input {
   @include truncate-text;
 }

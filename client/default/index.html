@@ -74,7 +74,7 @@
       <span class="<%= Rating %>"><%- Name %><br/><span class="account-no"><%= AccountNumber %></span></span>
   </script>
 
-  <script type="text/template" id="account-item-tpl">
+  <script type="text/template" id="account-tpl">
     <div>
       <section class="account-head">
         <div class="overlay">
@@ -106,5 +106,41 @@
       </section>
       </div>
   </script>
+
+  <script type="text/template" id="opportunity-tpl">
+    <div>
+      <section class="top">
+        <section class="head">
+          <h3>Amount</h3>
+          <div class="figure">&euro;<%= Amount %></div>
+
+          <h3>Expected Revenue</h3>
+          <div class="figure">&euro;<%= ExpectedRevenue %></div>
+
+          <div id="probability-bar">
+            <div id="probability-figure"></div>
+          </div>
+        </section>
+        <section class="info">
+          <h1><%- Name %></h1>
+          <span class="ss-user"><%- AccountId %></span>
+        </section>
+      </section>
+      <% if (Description) { %>
+        <section class="description">
+          <p><%- Description %></p>
+        </section>
+      <% } %>
+      <section class="raw">
+
+      </section>
+    </div>
+  </script>
+
+<script type="text/template" id="campaign-tpl">
+  <div>
+    <section></section>
+  </div>
+</script>
 </body>
 </html>

@@ -97,8 +97,8 @@ app = (function() {
   window.collections = {
     accounts: new (SalesforceCollection.extend({act:'listAccounts'})),
     cases: new Cases(),
-    campaigns: null,
-    opportunities: null
+    campaigns: new (SalesforceCollection.extend({act:'listCampaigns'})),
+    opportunities: new (SalesforceCollection.extend({act:'listOpps'}))
   };
 
   // The main application viewport and visual hub of the app. Because there
@@ -165,7 +165,7 @@ app = (function() {
           newView,
           menuListItems = $('#app-menu-list li'),
           menuListLength = menuListItems.length,
-          i, curItem;
+          i, curItem, titlebar;
 
       // Adjust menu item styling first to make seem extra responsive.
       for (i = 0; i < menuListLength; i++) {
@@ -188,8 +188,10 @@ app = (function() {
       }
       this.currentView = newView;
 
-      if (newView.titlebar) {
-        this.$('#titlebar h1').text(newView.titlebar.title);
+      titlebar = (newView.titlebar || newView.options.titlebar);
+
+      if (titlebar) {
+        this.$('#titlebar h1').text(titlebar.title);
         this.$('#titlebar').removeClass('hidden');
 
         // This gives us option of adjusting page padding/margin etc. to adjust
@@ -203,6 +205,10 @@ app = (function() {
       this.viewport.html(newView.render().el);
 
       if (newView.afterRender) newView.afterRender();
+
+      if (newView.setupScroll) {
+        setTimeout(newView.setupScroll, 100);
+      }
     },
 
     // Just a simple function to cancel any onclick events, which were following
@@ -215,7 +221,7 @@ app = (function() {
     // delay between tap and onclick events on mobile.
     followLink: function(event) {
       var href = $(event.srcElement).attr('href');
-      if (/^http/.test(href)) {
+      if (/^http|^www|^tel:|.com$/.test(href)) {
         window.location = href;
       } else {
         window.app.navigate(href, {trigger: true});
@@ -593,7 +599,7 @@ app = (function() {
         password: pass
       }, function(res) {
         localStorage.setItem('authData', JSON.stringify(res));
-        window.app.navigate("home", {trigger: true, replace: true});
+        window.app.navigate("accounts", {trigger: true, replace: true});
       }, function(err) {
         alert('Login failed; check details and try again.');
       });
@@ -661,6 +667,8 @@ app = (function() {
       'cases': 'cases',
       'case/:id': 'singleCase',
       'campaigns': 'campaigns',
+      'opportunities': 'opportunities',
+      'opportunities/:id': 'opportunityDetail',
       'logout': 'logout'
     },
 
@@ -683,24 +691,137 @@ app = (function() {
     },
 
     accounts: function() {
-      this.viewport.setView(AccountsView);
+      this.viewport.setView(ListPage, {
+        id: 'accounts-page',
+        collectionName: 'accounts',
+        titleField: 'Name',
+        titlebar: {
+          title: 'Accounts'
+        },
+        customiseBorder: function customiseBorder(item) {
+          return item.get('Rating');
+        }
+      });
     },
 
     singleAccount: function singleAccount(id) {
-      var that = this;
+      this.viewport.setView(ListDetailPage, {
+        titlebar: {
+          title: 'Accounts'
+        },
+        id: 'account-detail-page',
+        theId: id,
+        templateId: 'account-tpl',
+        collectionName: 'accounts',
+        customiseEl: function customiseEl(el) {
+          var that = this,
+              width = $(window).width(),
+              mapUrl = 'http://maps.googleapis.com/maps/api/staticmap?zoom=13&size=' + width + 'x' + Math.round(width * .67) + '&maptype=roadmap&sensor=false&center=';
 
-      function showSingleAccount() {
-        var accountModel = collections.accounts.where({'AccountNumber': id})[0];
-        that.viewport.setView(SingleAccountPage, {model: accountModel});
-        collections.accounts.off('reset', showSingleAccount);
-      }
+          function getEscapedAddress() {
+            var address = [
+              that.model.get('BillingStreet'),
+              that.model.get('BillingCity'),
+              that.model.get('BillingState'),
+              that.model.get('BillingCountry')
+            ].join(', ');
+            return address.replace(/\s/g, '+');
+          }
 
-      if (!collections.accounts.length) {
-        collections.accounts.fetch();
-        collections.accounts.on('reset', showSingleAccount);
-      } else {
-        showSingleAccount();
-      }
+          mapUrl += getEscapedAddress();
+
+          // If we're on retina, upscale the image to keep quality perfect.
+          mapUrl += window.devicePixelRatio > 1 ? '&scale=2' : '';
+
+          // Insert the raw data...
+          raw = '<table>';
+          for (i = 1; i < Object.keys(this.model.attributes).length; i++) {
+            raw += '<tr><td>' + Object.keys(this.model.attributes)[i] + '</td><td>' + this.model.attributes[Object.keys(this.model.attributes)[i]] + '</td></tr>';
+          }
+          raw += '</table>';
+          el.find('.raw').html(raw);
+
+          el.find('.account-head').css('background-image', 'url(' + mapUrl + ')');
+
+          el.find('.account-head').one('tap', function openMap() {
+            window.location = 'http://maps.google.com/maps?q=' + getEscapedAddress();
+          });
+        }
+      });
+    },
+
+    opportunities: function opportunities() {
+      this.viewport.setView(ListPage, {
+        id: 'opportunities-page',
+        collectionName: 'opportunities',
+        titleField: 'Name',
+        subtitleField: 'StageName',
+        titlebar: {
+          title: 'Opportunities'
+        },
+        customiseBorder: function customiseBorder(item) {
+          var probability = item.get('Probability'),
+              elem = $('<div class="opp-probability"></div>'),
+              num = $('<div>' + probability + '</div>'),
+              className;
+
+          if (probability > 70) {
+            className = 'high';
+          } else if (probability > 40) {
+            className = 'medium';
+          } else if (probability > 0) {
+            className = 'low';
+          }
+          elem.addClass(className);
+
+          elem.append(num);
+          elem.css('width', probability + '%');
+          return elem[0];
+        }
+      });
+    },
+
+    opportunityDetail: function opportunityDetail(id) {
+      this.viewport.setView(ListDetailPage, {
+        titlebar: {
+          title: 'Opportunities'
+        },
+        id: 'opportunity-detail-page',
+        theId: id,
+        templateId: 'opportunity-tpl',
+        collectionName: 'opportunities',
+        customiseEl: function customiseEl(el) {
+          var that = this,
+              probability = this.model.get('Probability'),
+              probBar = el.find('#probability-bar'),
+              probFigure = probBar.find('#probability-figure'),
+              className, raw;
+
+          if (probability > 70) {
+            className = 'high';
+          } else if (probability > 40) {
+            className = 'medium';
+          } else if (probability > 0) {
+            className = 'low';
+          }
+          probBar.addClass(className);
+          probBar.css('width', probability + '%');
+
+          probFigure.html(probability + '% probable');
+
+          // Insert the raw data...
+          raw = '<table>';
+          for (i = 1; i < Object.keys(this.model.attributes).length; i++) {
+            raw += '<tr><td>' + Object.keys(this.model.attributes)[i] + '</td><td>' + this.model.attributes[Object.keys(this.model.attributes)[i]] + '</td></tr>';
+          }
+          raw += '</table>';
+          el.find('.raw').html(raw);
+
+          el.find('.info').one('tap', function() {
+            window.app.navigate('accounts/' + that.model.get('AccountId'), {trigger: true});
+          });
+        }
+      });
     },
 
     cases: function cases() {
@@ -712,7 +833,37 @@ app = (function() {
     },
 
     campaigns: function campaigns() {
-      this.viewport.setView(CampaignsView);
+      this.viewport.setView(ListPage, {
+        id: 'campaigns-page',
+        collectionName: 'campaigns',
+        titleField: 'Name',
+        subtitleField: 'Status',
+        titlebar: {
+          title: 'Campaigns'
+        },
+        customiseBorder: function customiseBorder(item) {
+          var budget = item.get('BudgetedCost'),
+              actual = item.get('ActualCost'),
+              pct = (actual/budget) * 100,
+              elem, pctElem, overBudget;
+
+          overBudget = (pct > 100);
+          pct = (pct > 100) ? ((pct - 100) > 100) ? 100 : pct - 100 : pct;
+
+          if (actual) {
+            elem = $('<div class="cost-bar"></div>');
+
+            if (overBudget) {
+              elem.addClass('overbudget');
+            }
+
+            pctElem = $('<div class="cost-actual" style="width:' + pct + '%;"></div>');
+            elem.append(pctElem);
+            return elem[0];
+          }
+          return false;
+        }
+      });
     },
 
     logout: function logout() {
@@ -725,6 +876,158 @@ app = (function() {
   // We don't just instanciate it now due to needing the DOM to be ready for
   // initialization etc.
   window.App = AppRouter;
+
+  var Page = Backbone.View.extend({
+    className: 'page',
+    scroller: null,
+
+    initialize: function initialize() {
+      _.bindAll(this);
+
+      // Giving a string collectionName is recommended, as it allows us to
+      // properly reference links to individual items.
+      if (!this.collection && this.options.collectionName) {
+        this.collection = collections[this.options.collectionName] || undefined;
+      }
+
+      if (this.collection) {
+        this.collection.on('reset', this.refreshRender);
+
+        if (!this.collection.length) {
+          this.collection.fetch();
+        }
+      }
+
+      if (this.extraInit) {
+        this.extraInit();
+      }
+    },
+
+    refreshRender: function refreshRender() {
+      var that = this;
+
+      this.render();
+      setTimeout(that.setupScroll, 100);
+    },
+
+    setupScroll: function setupScroll() {
+      var that = this,
+          el = $(this.$el.children()[0]),
+          tallEnough = (el.height() > $(window).height() * .8);
+
+      if (that.scroller) {
+        that.scroller.refresh.call(that.scroller);
+      } else if (!that.scroller && tallEnough) {
+        that.scroller = new iScroll(that.id);
+      }
+    }
+  });
+
+  var ListPage = Page.extend({
+    collection: null,
+
+    options: {
+      titleField: null,
+      subtitleField: null,
+      listClass: null,
+
+      // Stub function, you should provide your own when wanting to use the
+      // color bars on the left of the list.
+      customiseBorder: function customiseBorder(item) {
+        return false;
+      }
+    },
+
+    render: function render() {
+      var that = this,
+          ul = $('<ul></ul>');
+
+      this.collection.each(function(item) {
+        ul.append(that.renderItem(item));
+      });
+
+      this.$el.html(ul);
+
+      return this;
+    },
+
+    renderItem: function renderItem(item) {
+      var that = this,
+          li = $('<li></li>'),
+          span = $('<span></span>'),
+          customBorder = this.options.customiseBorder(item),
+          id = item.get('Id');
+
+      if (this.options.collectionName) {
+        li.attr('data-link', id);
+        li.on('tap', function viewDetail() {
+          var link = that.options.collectionName + '/' + li.attr('data-link');
+
+          function removeTouchStyle() {
+            li.removeClass('touched');
+          }
+
+          li.addClass('touched');
+          setTimeout(removeTouchStyle, 100);
+
+          window.app.navigate(link, {trigger: true});
+        });
+        li.on('longTap', function touchStyle() {
+          li.addClass('touched');
+          $('body').one('touchend', function removeTouchStyle() {
+            li.removeClass('touched');
+          });
+        });
+      }
+
+      li.append(span);
+      span.append('<h2>' + item.get(this.options.titleField) + '</h2>');
+
+      if (customBorder) {
+        if (_.isString(customBorder)) {
+          span.addClass(customBorder);
+        }
+
+        if (_.isElement(customBorder)) {
+          span.prepend(customBorder);
+        }
+      }
+
+      if (this.options.subtitleField) {
+        span.append('<aside>' + item.get(this.options.subtitleField) + '</aside>');
+      }
+
+      return li;
+    }
+  });
+
+  var ListDetailPage = Page.extend({
+
+    extraInit: function extraInit() {
+      if (this.options.templateId) {
+        this.template = _.template($('#' + this.options.templateId).html());
+      }
+    },
+
+    render: function render() {
+      var el;
+
+      // If there's no collection loaded yet, bail out... the refreshRender will
+      // take care of us after the collection loads.
+      if (!this.collection.length) {
+        return this;
+      }
+
+      this.model = this.collection.where({ Id: this.options.theId })[0];
+      el = $(this.template(this.model.toJSON()));
+
+      if (this.options.customiseEl) this.options.customiseEl.call(this, el);
+
+      this.$el.html(el);
+
+      return this;
+    }
+  });
 }());
 
 // When the DOM is ready we initiate the app.

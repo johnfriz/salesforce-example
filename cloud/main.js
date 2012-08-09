@@ -78,6 +78,7 @@ exports.listCases = function(auth, cb) {
       queryFields;
 
   queryFields = [
+    'Id',
     'CaseNumber',
     'IsClosed',
     'Origin',
@@ -85,7 +86,7 @@ exports.listCases = function(auth, cb) {
     'Reason',
     'Subject',
     'Type'
-  ].join(', ')
+  ].join(', ');
 
 	conn.query("SELECT " + queryFields + " FROM Case ORDER BY CaseNumber DESC LIMIT 50", function(err, result) {
 		if(!err) return cb(null, result);
@@ -93,10 +94,42 @@ exports.listCases = function(auth, cb) {
 	});
 };
 
+exports.listOpps = function(auth, cb) {
+  var conn = new sf.Connection(auth),
+    queryFields;
+
+  queryFields = [
+    'Id',
+    'AccountId',
+    'Amount',
+    'CampaignId',
+    'CloseDate',
+    'Description',
+    'ExpectedRevenue',
+    'FiscalYear',
+    'FiscalQuarter',
+    'IsClosed',
+    'IsWon',
+    'Name',
+    'Probability',
+    'StageName',
+    'Type'
+  ].join(', ');
+
+  // Using query syntax. Possible feature for future consideration would be to
+  // allow custom limit and/or sorting, to make more robust.
+  conn.query("SELECT " + queryFields + " FROM Opportunity ORDER BY Probability DESC LIMIT 50",
+    function(err, result) {
+
+      if (!err) return cb(null, result);
+      return cb(err, null);
+    });
+};
+
 exports.listCampaigns = function(auth, cb) {
   var conn = new sf.Connection(auth);
 
-  conn.query("SELECT Name, Status, IsActive, BudgetedCost, ActualCost FROM Campaign ORDER BY LastActivityDate DESC LIMIT 50", function(err, result) {
+  conn.query("SELECT Id, Name, Status, IsActive, BudgetedCost, ActualCost FROM Campaign ORDER BY Status DESC LIMIT 50", function(err, result) {
     if(!err) return cb(null, result);
     return cb(err, null);
   });
