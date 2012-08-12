@@ -426,7 +426,7 @@ body,
   bottom: 0;
 
   &.with-titlebar {
-    top: 3rem;
+    top: 3.2rem;
   }
 }
 
@@ -490,6 +490,10 @@ body,
   .form {
     width: 100%;
     padding: 0;
+  }
+
+  input {
+    background-color: transparent;
   }
 
   button {
@@ -560,10 +564,9 @@ body,
   position: absolute;
   left: 0;
   top: 0;
-  width: 80%;
+  width: 100%;
   height: 100%;
   background-color: #444;
-  box-shadow: inset -1rem 0 2rem -1rem rgba(0, 0, 0, 0.67);
 }
 
 #app-menu-list {
@@ -572,8 +575,8 @@ body,
   padding: 0;
 
   li {
-    height: 3rem;
-    line-height: 3rem;
+    height: 3.2rem;
+    line-height: 3.2rem;
     border-top: .1rem solid rgba(255, 255, 255, 0.10);
     border-bottom: .1rem solid rgba(0, 0, 0, 0.25);
     font-size: 1.33rem;
@@ -583,12 +586,12 @@ body,
       display: block;
       text-decoration: none;
       color: rgba(255, 255, 255, 0.66);
-      height: 3rem;
-      line-height: 3rem; // Doesn't seem to inherit these properly.
+      height: 3.2rem;
+      line-height: 3.2rem; // Doesn't seem to inherit these properly.
 
       &::before {
         font-size: 1.5rem;
-        line-height: 3rem;
+        line-height: 3.2rem;
         vertical-align: middle;
         padding: 0 1rem;
       }
@@ -615,17 +618,23 @@ body,
 #titlebar {
   position: absolute;
   width: 100%;
-  height: 3rem;
+  height: 3.2rem;
+  padding-bottom: .2rem;
   overflow: hidden;
   z-index: 200;
   background-image: -webkit-linear-gradient(bottom, $fh-red 7%, lighten($fh-red, 12) 100%);
   color: #fff;
   border-top: .1rem solid rgba(255, 255, 255, 0.40);
   border-bottom: .1rem solid darken($fh-red, 20);
-  box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 .5rem 0 rgba(0, 0, 0, 0.5), inset 0 -.2rem 0 0 rgba(0, 0, 0, 0.07);
   -webkit-transition: all .2s ease;
 
   @include inset-text-shadow;
+
+  &.hidden {
+    -webkit-transform: translateY(-3.2rem);
+    box-shadow: none;
+  }
 
   button {
     border: none;
@@ -643,6 +652,7 @@ body,
     // Violates DRY but buttons don't seem to inherit this.
     @include inset-text-shadow;
 
+    &.touched,
     &:active {
       background-color: rgba(0, 0, 0, 0.1);
       box-shadow: inset 0 0 1rem rgba(0, 0, 0, 0.25);
@@ -688,11 +698,6 @@ body,
   }
 }
 
-.hidden {
-  -webkit-transform: translateY(-3rem);
-  box-shadow: none;
-}
-
 // VIEWPORT WRAPPER
 // -----------------------------------------------------------------------------
 #viewport-wrapper {
@@ -706,6 +711,7 @@ body,
   background-image: url(../res/img/mapbg.png);
   background-size: cover;
   background-position: 50% 0;
+  box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.67);
 
   // The animation setup for menu slide-in/out...
   -webkit-transition: -webkit-transform .33s ease;
@@ -761,33 +767,21 @@ body,
     font-size: .8rem;
 }
 
-#cases-list {
-  li {
-    padding: 0;
-    line-height: 3rem;
+#cases-page {
 
-    span {
-      padding: 0 .5rem 0 .5rem;
-      border-left: .5rem solid transparent;
-      display: block;
+  .High {
+    border-left-color: $fh-red;
+  }
+  .Medium {
+    border-left-color: #ffa81f;
+  }
+  .Low {
+    border-left-color: #4e93ff;
+  }
 
-      @include truncate-text;
-    }
-
-    .High-priority {
-      border-left-color: $fh-red;
-    }
-    .Medium-priority {
-      border-left-color: #ffa81f;
-    }
-    .Low-priority {
-      border-left-color: #4e93ff;
-    }
-
-    .true {
-        text-decoration: line-through;
-        opacity: .67;
-    }
+  .true {
+      text-decoration: line-through;
+      opacity: .67;
   }
 }
 

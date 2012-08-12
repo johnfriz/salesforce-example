@@ -203,6 +203,12 @@ app = (function() {
 
       this.viewport.html(newView.render().el);
 
+      if (newView.isChild) {
+        $('#menu-button').html('previous');
+      } else {
+        $('#menu-button').html('list');
+      }
+
       if (newView.afterRender) newView.afterRender();
 
       if (newView.setupScroll) {
@@ -231,8 +237,11 @@ app = (function() {
     },
 
     closeMenu: function closeMenu() {
-      var elem = this.$('#viewport-wrapper');
-      if (elem.css('-webkit-transform') === 'translateX(80%)') {
+      var elem = this.$('#viewport-wrapper'),
+          width = $(window).width() - this.$('#menu-button').width();
+
+
+      if (elem.css('-webkit-transform') === 'translateX(' + width + 'px)') {
         elem.css('-webkit-transform', 'translateX(0)');
       }
     },
@@ -242,11 +251,19 @@ app = (function() {
       // TODO: Assess if necessary.
       if (event) event.stopPropagation();
 
-      var elem = this.$('#viewport-wrapper');
-      if (elem.css('-webkit-transform') === 'translateX(80%)') {
+      if (this.currentView.isChild) {
+        window.history.back();
+        return false;
+      }
+
+      var elem = this.$('#viewport-wrapper'),
+          width = $(window).width() - this.$('#menu-button').width();
+
+      console.log(elem.css('-webkit-transform'));
+      if (elem.css('-webkit-transform') === 'translateX(' + width + 'px)') {
         elem.css('-webkit-transform', 'translateX(0)');
       } else {
-        elem.css('-webkit-transform', 'translateX(80%)');
+        elem.css('-webkit-transform', 'translateX(' + width + 'px)');
       }
     },
 
@@ -665,8 +682,9 @@ app = (function() {
       'accounts': 'accounts',
       'accounts/:id': 'singleAccount',
       'cases': 'cases',
-      'case/:id': 'singleCase',
+      'cases/:id': 'singleCase',
       'campaigns': 'campaigns',
+      'campaigns/:id': 'campaignDetail',
       'opportunities': 'opportunities',
       'opportunities/:id': 'opportunityDetail',
       'logout': 'logout'
@@ -678,8 +696,11 @@ app = (function() {
     },
 
     startup: function startup() {
+      console.log('startup');
       var authData = localStorage.getItem('authData');
+
       if (authData && !isSessionTimedOut()) {
+        console.log('Skipping login...');
         window.app.navigate('accounts', {trigger: true, replace: true});
       } else {
         window.app.navigate('login', {trigger: true, replace: true});
@@ -709,6 +730,7 @@ app = (function() {
         titlebar: {
           title: 'Accounts'
         },
+        isChild: true,
         id: 'account-detail-page',
         theId: id,
         templateId: 'account-tpl',
@@ -786,6 +808,7 @@ app = (function() {
         titlebar: {
           title: 'Opportunities'
         },
+        isChild: true,
         id: 'opportunity-detail-page',
         theId: id,
         templateId: 'opportunity-tpl',
@@ -825,11 +848,47 @@ app = (function() {
     },
 
     cases: function cases() {
-      this.viewport.setView(CasesView);
+      this.viewport.setView(ListPage, {
+        id: 'cases-page',
+        collectionName: 'cases',
+        titleField: 'Subject',
+        titlebar: {
+          title: 'Cases'
+        },
+        customiseBorder: function customiseBorder(item) {
+          var classString;
+
+          classString = item.get('Priority');
+
+          if (item.get('IsClosed')) {
+            classString += ' true';
+          }
+
+          return classString;
+        }
+      });
     },
 
-    singleCase: function singleCase() {
-      this.viewport.setView(SingleCasePage);
+    singleCase: function singleCase(id) {
+      this.viewport.setView(ListDetailPage, {
+        titlebar: {
+          title: 'Cases'
+        },
+        isChild: true,
+        id: 'cases-detail-page',
+        theId: id,
+        templateId: 'cases-tpl',
+        collectionName: 'cases',
+        customiseEl: function customiseEl(el) {
+          // Insert the raw data...
+          raw = '<table>';
+          for (i = 1; i < Object.keys(this.model.attributes).length; i++) {
+            raw += '<tr><td>' + Object.keys(this.model.attributes)[i] + '</td><td>' + this.model.attributes[Object.keys(this.model.attributes)[i]] + '</td></tr>';
+          }
+          raw += '</table>';
+          el.find('.raw').html(raw);
+        }
+      });
     },
 
     campaigns: function campaigns() {
@@ -866,6 +925,28 @@ app = (function() {
       });
     },
 
+    campaignDetail: function campaignDetail(id) {
+      this.viewport.setView(ListDetailPage, {
+        titlebar: {
+          title: 'Campaigns'
+        },
+        isChild: true,
+        id: 'campaign-detail-page',
+        theId: id,
+        templateId: 'campaign-tpl',
+        collectionName: 'campaigns',
+        customiseEl: function customiseEl(el) {
+          // Insert the raw data...
+          raw = '<table>';
+          for (i = 1; i < Object.keys(this.model.attributes).length; i++) {
+            raw += '<tr><td>' + Object.keys(this.model.attributes)[i] + '</td><td>' + this.model.attributes[Object.keys(this.model.attributes)[i]] + '</td></tr>';
+          }
+          raw += '</table>';
+          el.find('.raw').html(raw);
+        }
+      });
+    },
+
     logout: function logout() {
       localStorage.removeItem('authData');
       window.app.navigate('login', {trigger: true});
@@ -898,6 +979,10 @@ app = (function() {
         }
       }
 
+      if (this.options.isChild) {
+        this.isChild = true;
+      }
+
       if (this.extraInit) {
         this.extraInit();
       }
@@ -915,9 +1000,9 @@ app = (function() {
           el = $(this.$el.children()[0]),
           tallEnough = (el.height() > $(window).height() * .8);
 
-      if (that.scroller) {
-        that.scroller.refresh.call(that.scroller);
-      } else if (!that.scroller && tallEnough) {
+      // TODO: Enable better management of iScrolls, to prevent possible memory
+      // leaks etc.
+      if (tallEnough) {
         that.scroller = new iScroll(that.id);
       }
     }
