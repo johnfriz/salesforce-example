@@ -220,6 +220,17 @@ app = (function() {
     // through (delayed) from a tap on the menu item.
     stopLink: function(event) {
 
+      if (/^www/.test(event.srcElement.pathname.substring(1))) {
+        window.location = 'http://' + event.srcElement.pathname.substring(1);
+        this.trigger('pagechange');
+        return false;
+      }
+
+      if (event.srcElement.hash.charAt(0) === '#') {
+        return false;
+
+      }
+
       // If the element is a link tag pointing to a
       return (event.srcElement.nodeName === 'A' &&
         (event.srcElement.href.substring(0, 4) === 'tel:' ||
@@ -230,14 +241,10 @@ app = (function() {
     // Works around the above, with the added bonus of circumventing the short
     // delay between tap and onclick events on mobile.
     followLink: function(event) {
-      var href = event.srcElement.pathname.substring(1);
-
-      if (/^www/.test(href)) {
-        window.location = 'http://' + href;
-      } else {
+      if (event.srcElement.hash.charAt(0) === '#') {
         window.app.navigate(event.srcElement.hash.substring(1), {trigger: true});
+        this.trigger('pagechange');
       }
-      this.trigger('pagechange');
       // this.toggleMenu();
     },
 
@@ -958,7 +965,7 @@ app = (function() {
       localStorage.removeItem('authData');
 
       for (collection in collections) {
-        collections[collection] = null;
+        collections[collection].length = 0;
       }
 
       window.app.navigate('login', {trigger: true});
