@@ -12,7 +12,7 @@
 
 @font-face {
 	font-family: "SSStandard";
-	src: url('../res/font/ss-standard.woff') format('woff'),
+	src: url('../res/font/ss-standard.woff.bin') format('woff'),
 	     url('../res/font/ss-standard.ttf')  format('truetype'),
 	     url('../res/font/ss-standard.svg#SSStandard') format('svg');
 	font-weight: normal;
