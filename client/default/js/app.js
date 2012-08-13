@@ -220,18 +220,16 @@ app = (function() {
     // through (delayed) from a tap on the menu item.
     stopLink: function(event) {
 
-      return false;
+      // If the element is a link tag pointing to a phone num or website, allow
+      // the event to continue...
+      return (event.srcElement.nodeName === 'A' &&
+              (event.srcElement.href.substring(0, 4) === 'tel:' ||
+               event.srcElement.href.substring(0, 4) === 'http'));
     },
 
     // Works around the above, with the added bonus of circumventing the short
     // delay between tap and onclick events on mobile.
     followLink: function(event) {
-      var href = $(event.srcElement).attr('href');
-      if (/^http|^www|^tel:|.com$/.test(href)) {
-        window.location = href;
-      } else {
-        window.app.navigate(href, {trigger: true});
-      }
       this.trigger('pagechange');
       // this.toggleMenu();
     },
@@ -948,7 +946,14 @@ app = (function() {
     },
 
     logout: function logout() {
+      var collection;
+
       localStorage.removeItem('authData');
+
+      for (collection in Object.keys(collections)) {
+        collections[collection] = null;
+      }
+
       window.app.navigate('login', {trigger: true});
     }
   });
